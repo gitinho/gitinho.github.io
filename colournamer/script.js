@@ -2,7 +2,7 @@ var tabCamera = document.getElementById('tabCamera')
 var tabPhoto = document.getElementById('tabPhoto')
 var tabPicker = document.getElementById('tabPicker')
 
-function tab (event, tab) {
+function tab(event, tab) {
   event.preventDefault()
   tabCamera.classList.remove('active')
   tabPhoto.classList.remove('active')
@@ -24,17 +24,17 @@ tabPicker.addEventListener('click', function (e) {
   tab(e, 'tabPicker')
 })
 
-function hexToRGB (hex) {
+function hexToRGB(hex) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
   return result
     ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-      }
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    }
     : null
 }
-function rgb2hsv (c) {
+function rgb2hsv(c) {
   let rabs, gabs, babs, rr, gg, bb, h, s, v, diff, diffc, percentRoundFn
   rabs = c['r'] / 255
   gabs = c['g'] / 255
@@ -70,14 +70,14 @@ function rgb2hsv (c) {
     v: percentRoundFn(v * 100)
   }
 }
-function colourDiff2 (c1, c2) {
+function colourDiff2(c1, c2) {
   return Math.sqrt(
     Math.pow(c1['r'] - c2['r'], 2) +
-      Math.pow(c1['g'] - c2['g'], 2) +
-      Math.pow(c1['b'] - c2['b'], 2)
+    Math.pow(c1['g'] - c2['g'], 2) +
+    Math.pow(c1['b'] - c2['b'], 2)
   )
 }
-function colourDiff (c1, c2) {
+function colourDiff(c1, c2) {
   c1hsv = rgb2hsv(c1)
   c2hsv = rgb2hsv(c2)
   dh =
@@ -89,14 +89,14 @@ function colourDiff (c1, c2) {
   dv = Math.abs(c2hsv['v'] - c1hsv['v']) / 100.0
   return Math.sqrt(dh * dh + ds * ds + dv * dv)
 }
-function colourName (colour) {
+function colourName(colour) {
   var diffs = []
   for (hexCode in colours) {
     diff = colourDiff(colour, hexToRGB(hexCode))
     if (diff < 80) diffs.push([diff, [hexCode, colours[hexCode]]])
   }
   ret = ''
-  diffs.sort(function compare (diff1, diff2) {
+  diffs.sort(function compare(diff1, diff2) {
     if (diff1[0] > diff2[0]) return 1
     return 0
   })
@@ -117,7 +117,7 @@ function colourName (colour) {
   }
   return ret
 }
-function update (c) {
+function update(c) {
   colourName(hexToRGB(c))
   bg.style.backgroundColor = c
   if (colorWheel.color.value < 75) {
@@ -148,7 +148,7 @@ function update (c) {
   }
 }
 
-function setHex (hex) {
+function setHex(hex) {
   colorWheel.color.hexString = hex
   hexInput.value = hex
 }
@@ -173,7 +173,7 @@ bg = document.getElementsByTagName('body')[0]
 btns = document.getElementsByClassName('colour-btn')
 update(colorWheel.color.hexString)
 hexInput.value = colorWheel.color.hexString
-hexInput.addEventListener('change', function change () {
+hexInput.addEventListener('change', function change() {
   update(hexInput.value)
   colorWheel.color.hexString = hexInput.value
 })
@@ -198,12 +198,12 @@ if (navigator.mediaDevices.getUserMedia) {
     })
 }
 
-function resume () {
+function resume() {
   video.style.display = 'block'
   canvas.style.display = 'none'
 }
 
-function stop () {
+function stop() {
   //video.pause()
   video.style.display = 'none'
   canvas.style.display = 'block'
@@ -214,13 +214,14 @@ function stop () {
   //img.src = canvas.toDataURL('image/webp');
 }
 
-function colorInMouseCursor (e) {
+function colorInMouseCursor(e) {
   var imageData = context.getImageData(0, 0, canvas.width, canvas.height)
   //https://stackoverflow.com/questions/3234256/find-mouse-position-relative-to-element/42111623#42111623
   var rect = e.target.getBoundingClientRect()
   var x = e.clientX - rect.left //x position within the element.
   var y = e.clientY - rect.top //y position within the element.
   var width = window.innerWidth > 0 ? window.innerWidth : screen.width
+  width = width > 720 ? 720 : width
   var ratio = video.videoWidth / width
   x *= ratio
   y *= ratio
@@ -261,6 +262,16 @@ canvas.addEventListener('mouseover', function (e) {
   previewDiv.style.borderWidth = '4px'
   previewDiv.style.backgroundColor = colorInMouseCursor(e)
   document.body.appendChild(previewDiv)
+
+  var mg = document.createElement("img")
+  mg.id = 'mg'
+  mg.style.position = 'absolute'
+  mg.style.left = e.clientX - 36 + 'px'
+  mg.style.top = e.clientY - 68 + 'px'
+  mg.setAttribute("src", "../mg.png")
+  mg.setAttribute("width", "96")
+  mg.setAttribute("height", "96")
+  document.body.appendChild(mg)
 })
 
 canvas.addEventListener('mousemove', function (e) {
@@ -268,9 +279,16 @@ canvas.addEventListener('mousemove', function (e) {
   previewDiv.style.left = e.clientX - 32 + 'px'
   previewDiv.style.top = e.clientY - 64 + 'px'
   previewDiv.style.backgroundColor = colorInMouseCursor(e)
+
+  mg = document.getElementById("mg")
+  mg.style.left = e.clientX - 36 + 'px'
+  mg.style.top = e.clientY - 68 + 'px'
 })
 
 canvas.addEventListener('mouseout', function (e) {
   previewDiv = document.getElementById('previewDiv')
   previewDiv.remove()
+
+  mg = document.getElementById("mg")
+  mg.remove()
 })
